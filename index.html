@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pixelfunding</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+h1{
+margin-top:20px;
+}
+
+#canvasContainer{
+margin:auto;
+width:800px;
+height:800px;
+border:2px solid white;
+overflow:auto;
+background:black;
+}
+
+#grid{
+display:grid;
+grid-template-columns: repeat(317, 3px);
+grid-template-rows: repeat(317, 3px);
+}
+
+.pixel{
+width:3px;
+height:3px;
+background:#1e293b;
+cursor:pointer;
+}
+
+.pixel:hover{
+background:#22c55e;
+}
+
+.sold{
+background:#ef4444;
+}
+
+.selected{
+background:#3b82f6;
+}
+
+#panel{
+margin-top:20px;
+}
+
+button{
+padding:10px 20px;
+margin:10px;
+border:none;
+border-radius:5px;
+cursor:pointer;
+}
+
+.paypal{
+background:#0070ba;
+color:white;
+}
+
+.mercado{
+background:#009ee3;
+color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>PIXELFUNDING</h1>
+<p>Compra un pixel y apoya el proyecto</p>
+
+<div id="canvasContainer">
+<div id="grid"></div>
+</div>
+
+<div id="panel">
+<p>Pixeles seleccionados: <span id="count">0</span></p>
+
+<button class="paypal" onclick="pagarPaypal()">Pagar con PayPal</button>
+
+<button class="mercado" onclick="pagarMercado()">Pagar con MercadoPago</button>
+</div>
+
+<script>
+
+const grid = document.getElementById("grid")
+let seleccionados = []
+
+for(let i=0;i<317*317;i++){
+
+let pixel = document.createElement("div")
+pixel.classList.add("pixel")
+
+pixel.addEventListener("click",()=>{
+
+if(pixel.classList.contains("sold")) return
+
+pixel.classList.toggle("selected")
+
+if(pixel.classList.contains("selected")){
+seleccionados.push(i)
+}else{
+seleccionados = seleccionados.filter(p=>p!=i)
+}
+
+document.getElementById("count").innerText = seleccionados.length
+
+})
+
+grid.appendChild(pixel)
+
+}
+
+function pagarPaypal(){
+
+if(seleccionados.length==0){
+alert("Selecciona pixeles primero")
+return
+}
+
+window.location.href="TU_LINK_PAYPAL"
+
+}
+
+function pagarMercado(){
+
+if(seleccionados.length==0){
+alert("Selecciona pixeles primero")
+return
+}
+
+window.location.href="TU_LINK_MERCADOPAGO"
+
+}
+
+</script>
+
+</body>
+</html>
