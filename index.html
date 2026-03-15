@@ -7,7 +7,7 @@
 <style>
 
 body{
-font-family: Arial;
+font-family:Arial;
 background:#0f172a;
 color:white;
 text-align:center;
@@ -15,6 +15,11 @@ text-align:center;
 
 h1{
 margin-top:20px;
+}
+
+#stats{
+margin:10px;
+font-size:18px;
 }
 
 #canvasContainer{
@@ -28,13 +33,14 @@ background:black;
 
 #grid{
 display:grid;
-grid-template-columns: repeat(317, 3px);
-grid-template-rows: repeat(317, 3px);
+grid-template-columns: repeat(317, 5px);
+grid-template-rows: repeat(317, 5px);
+transform-origin: top left;
 }
 
 .pixel{
-width:3px;
-height:3px;
+width:5px;
+height:5px;
 background:#1e293b;
 cursor:pointer;
 }
@@ -61,6 +67,7 @@ margin:10px;
 border:none;
 border-radius:5px;
 cursor:pointer;
+font-size:16px;
 }
 
 .paypal{
@@ -79,29 +86,51 @@ color:white;
 <body>
 
 <h1>PIXELFUNDING</h1>
-<p>Compra un pixel y apoya el proyecto</p>
+
+<div id="stats">
+Pixeles seleccionados: <span id="count">0</span> |
+Total recaudado: $<span id="money">0</span>
+</div>
 
 <div id="canvasContainer">
 <div id="grid"></div>
 </div>
 
 <div id="panel">
-<p>Pixeles seleccionados: <span id="count">0</span></p>
 
-<button class="paypal" onclick="pagarPaypal()">Pagar con PayPal</button>
+<button class="paypal" onclick="pagarPaypal()">
+Pagar con PayPal
+</button>
 
-<button class="mercado" onclick="pagarMercado()">Pagar con MercadoPago</button>
+<button class="mercado" onclick="pagarMercado()">
+Pagar con MercadoPago
+</button>
+
 </div>
 
 <script>
 
+const precioPixel = 5
+
 const grid = document.getElementById("grid")
-let seleccionados = []
+
+let seleccionados=[]
+let vendidos = JSON.parse(localStorage.getItem("pixelesVendidos")) || []
+
+let zoom = 1
+
+function actualizarDinero(){
+document.getElementById("money").innerText = vendidos.length * precioPixel
+}
 
 for(let i=0;i<317*317;i++){
 
 let pixel = document.createElement("div")
 pixel.classList.add("pixel")
+
+if(vendidos.includes(i)){
+pixel.classList.add("sold")
+}
 
 pixel.addEventListener("click",()=>{
 
@@ -123,6 +152,8 @@ grid.appendChild(pixel)
 
 }
 
+actualizarDinero()
+
 function pagarPaypal(){
 
 if(seleccionados.length==0){
@@ -130,7 +161,15 @@ alert("Selecciona pixeles primero")
 return
 }
 
-window.location.href="TU_LINK_PAYPAL"
+seleccionados.forEach(p=>{
+vendidos.push(p)
+})
+
+localStorage.setItem("pixelesVendidos",JSON.stringify(vendidos))
+
+alert("Compra simulada completada")
+
+location.reload()
 
 }
 
@@ -141,9 +180,28 @@ alert("Selecciona pixeles primero")
 return
 }
 
-window.location.href="TU_LINK_MERCADOPAGO"
+seleccionados.forEach(p=>{
+vendidos.push(p)
+})
+
+localStorage.setItem("pixelesVendidos",JSON.stringify(vendidos))
+
+alert("Compra simulada completada")
+
+location.reload()
 
 }
+
+document.getElementById("canvasContainer").addEventListener("wheel",function(e){
+
+e.preventDefault()
+
+zoom += e.deltaY * -0.001
+zoom = Math.min(Math.max(.5, zoom), 5)
+
+grid.style.transform = "scale("+zoom+")"
+
+})
 
 </script>
 
