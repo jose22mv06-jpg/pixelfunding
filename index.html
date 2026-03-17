@@ -41,6 +41,31 @@ border-color:#999;
 <p id="counter">Pixels vendidos: 0 / 2500</p>
 
 <div id="grid"></div>
+<div id="purchaseBox" style="
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+width:300px;
+z-index:1000;
+text-align:center;
+"><h3>Comprar Pixel</h3>
+
+<input id="nameInput" placeholder="Nombre" style="width:90%; margin:5px;"><br>
+
+<input id="linkInput" placeholder="Link" style="width:90%; margin:5px;"><br>
+
+<input id="colorInput" type="color" style="margin:10px;"><br>
+
+<button id="buyButton">Comprar</button>
+<button id="cancelButton">Cancelar</button>
+
+</div>
 
 <script type="module">
 
@@ -63,6 +88,16 @@ const db = getDatabase(app);
 const grid = document.getElementById("grid");
 const counter = document.getElementById("counter");
 
+const purchaseBox = document.getElementById("purchaseBox");
+const nameInput = document.getElementById("nameInput");
+const linkInput = document.getElementById("linkInput");
+const colorInput = document.getElementById("colorInput");
+const buyButton = document.getElementById("buyButton");
+const overlay = document.getElementById("overlay");
+const cancelButton = document.getElementById("cancelButton");
+
+let selectedPixel = null;
+
 let soldPixels = 0;
 for(let i=0;i<2500;i++){
 
@@ -70,20 +105,6 @@ const pixel = document.createElement("div");
 pixel.className = "pixel";
 pixel.dataset.id = i;
 pixel.title = "Pixel #" + i;
-
-pixel.onclick=()=>{
-
-const name = prompt("Nombre del patrocinador:");
-const link = prompt("Link del sitio:");
-const color = prompt("Color del pixel:");
-
-set(ref(db,"pixels/"+i),{
-name:name,
-link:link,
-color:color
-});
-
-};
 
 onValue(ref(db,"pixels/"+i),(snapshot)=>{
 
@@ -104,19 +125,9 @@ window.open(data.link,"_blank");
 }else{
 
 pixel.onclick=()=>{
-
-const name = prompt("Nombre del patrocinador:");
-const link = prompt("Link del sitio:");
-const color = prompt("Color del pixel:");
-
-if(name && link && color){
-set(ref(db,"pixels/"+i),{
-name:name,
-link:link,
-color:color
-});
-}
-
+selectedPixel = i;
+purchaseBox.style.display = "block";
+overlay.style.display = "block";
 };
 
 }
@@ -126,6 +137,38 @@ color:color
 grid.appendChild(pixel);
 
 }
+
+buyButton.onclick = ()=>{
+cancelButton.onclick = ()=>{
+
+purchaseBox.style.display = "none";
+overlay.style.display = "none";
+
+nameInput.value="";
+linkInput.value="";
+
+};
+
+const name = nameInput.value;
+const link = linkInput.value;
+const color = colorInput.value;
+
+if(name && link && color){
+
+set(ref(db,"pixels/"+selectedPixel),{
+name:name,
+link:link,
+color:color
+});
+
+purchaseBox.style.display = "none";
+
+nameInput.value="";
+linkInput.value="";
+
+}
+
+};
 
 </script>
 
