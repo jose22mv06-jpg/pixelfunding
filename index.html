@@ -10,10 +10,6 @@ text-align:center;
 background:#f5f5f5;
 }
 
-h1{
-margin-top:20px;
-}
-
 #grid{
 display:grid;
 grid-template-columns:repeat(50,12px);
@@ -28,10 +24,6 @@ border:1px solid #ddd;
 cursor:pointer;
 background:white;
 }
-
-.pixel:hover{
-background:#ddd;
-}
 </style>
 
 </head>
@@ -39,7 +31,7 @@ background:#ddd;
 <body>
 
 <h1>PixelFunding</h1>
-<p>Haz clic en un pixel para comprarlo</p>
+<p>Haz clic en un pixel</p>
 
 <div id="grid"></div>
 
@@ -55,8 +47,7 @@ databaseURL: "https://pixelfunding-522a5-default-rtdb.firebaseio.com",
 projectId: "pixelfunding-522a5",
 storageBucket: "pixelfunding-522a5.firebasestorage.app",
 messagingSenderId: "3268326785",
-appId: "1:3268326785:web:9204ea2483d518d4b3a480",
-measurementId: "G-XMRH886361"
+appId: "1:3268326785:web:9204ea2483d518d4b3a480"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -73,7 +64,7 @@ pixel.onclick=()=>{
 
 const name = prompt("Nombre del patrocinador:");
 const link = prompt("Link del sitio:");
-const color = prompt("Color del pixel (ej: red o #ff0000):");
+const color = prompt("Color del pixel:");
 
 set(ref(db,"pixels/"+i),{
 name:name,
@@ -84,17 +75,21 @@ color:color
 };
 
 onValue(ref(db,"pixels/"+i),(snapshot)=>{
+
 const data = snapshot.val();
 
 if(data){
-pixel.style.background = data.color || "black";
+pixel.style.background=data.color || "black";
+pixel.title=data.name;
 
-pixel.title = data.name;
-
-pixel.onclick = ()=>{
+pixel.onclick=()=>{
 window.open(data.link,"_blank");
 };
+
 }
+
+});
+
 grid.appendChild(pixel);
 
 }
