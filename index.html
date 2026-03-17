@@ -1,176 +1,213 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>PixelFunding</title>
+    <title>PixelFunding</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #f5f5f5; padding: 20px; margin: 0; }
+        
+        h1 { color: #333; margin-bottom: 5px; }
+        #counter { font-weight: bold; color: #666; margin-bottom: 20px; }
 
-<style>
-body{
-font-family:Arial;
-text-align:center;
-background:#f5f5f5;
-}
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(50, 16px);
+            width: 800px;
+            margin: 0 auto;
+            background: white;
+            border: 2px solid #333;
+            user-select: none; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
 
-#grid{
-display:grid;
-grid-template-columns:repeat(50,16px);
-width:800px;
-margin:40px auto;
-}
+        .pixel {
+            width: 16px;
+            height: 16px;
+            border: 0.5px solid #eee;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
 
-.pixel{
-width:16px;
-height:16px;
-border:1px solid #e5e5e5;
-cursor:pointer;
-background:white;
-transition:0.2s;
-}
+        .pixel:hover {
+            background: #f0f0f0 !important;
+            transform: scale(1.3);
+            z-index: 10;
+            position: relative;
+            outline: 1px solid #000;
+        }
 
-.pixel:hover{
-transform:scale(1.2);
-border-color:#999;
-}
-</style>
+        /* ANIMACIÓN DE PARPADEO */
+        @keyframes parpadeo {
+            0% { outline: 2px solid #000; }
+            50% { outline: 2px solid #ff4757; box-shadow: 0 0 10px #ff4757; }
+            100% { outline: 2px solid #000; }
+        }
 
+        .pixel-selected {
+            animation: parpadeo 0.6s infinite;
+            z-index: 20;
+            position: relative;
+            background: #fff !important;
+        }
+
+        .pixel.sold { cursor: pointer; border: none; }
+
+        /* INTERFAZ DE COMPRA */
+        #purchaseBox {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+            width: 320px;
+            z-index: 2000;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(2px);
+            z-index: 1500;
+        }
+
+        input { width: 95%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        
+        .btn-group { margin-top: 15px; display: flex; gap: 10px; justify-content: center; }
+        button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #buyButton { background: #2ed573; color: white; flex: 2; }
+        #cancelButton { background: #ff4757; color: white; flex: 1; }
+    </style>
 </head>
-
 <body>
 
-<h1>PixelFunding</h1>
-<p>Haz clic en un pixel</p>
-<p id="counter">Pixels vendidos: 0 / 2500</p>
+    <h1>PixelFunding</h1>
+    <p id="counter">Pixels vendidos: Cargando...</p>
 
-<div id="grid"></div>
-<div id="purchaseBox" style="
-display:none;
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 10px 30px rgba(0,0,0,0.2);
-width:300px;
-z-index:1000;
-text-align:center;
-"><h3>Comprar Pixel</h3>
+    <div id="grid"></div>
 
-<input id="nameInput" placeholder="Nombre" style="width:90%; margin:5px;"><br>
+    <div id="overlay"></div>
+    <div id="purchaseBox">
+        <h3 style="margin-top:0">Comprar este espacio</h3>
+        <input id="nameInput" placeholder="Tu nombre o empresa">
+        <input id="linkInput" placeholder="Link (ej: mipágina.com)">
+        <div style="margin: 10px 0;">
+            <label>Color:</label>
+            <input id="colorInput" type="color" value="#1e90ff" style="width: 50px; height: 30px; padding: 0; vertical-align: middle; border: none;">
+        </div>
+        <div class="btn-group">
+            <button id="buyButton">Confirmar Compra</button>
+            <button id="cancelButton">Cerrar</button>
+        </div>
+    </div>
 
-<input id="linkInput" placeholder="Link" style="width:90%; margin:5px;"><br>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-<input id="colorInput" type="color" style="margin:10px;"><br>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCE_Wsp4bpohzngVpQYN16pG5xj6tWjXUg",
+            authDomain: "pixelfunding-522a5.firebaseapp.com",
+            databaseURL: "https://pixelfunding-522a5-default-rtdb.firebaseio.com",
+            projectId: "pixelfunding-522a5",
+            storageBucket: "pixelfunding-522a5.firebasestorage.app",
+            messagingSenderId: "3268326785",
+            appId: "1:3268326785:web:9204ea2483d518d4p3a480"
+        };
 
-<button id="buyButton">Comprar</button>
-<button id="cancelButton">Cancelar</button>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-</div>
+        const grid = document.getElementById("grid");
+        const counter = document.getElementById("counter");
+        const purchaseBox = document.getElementById("purchaseBox");
+        const overlay = document.getElementById("overlay");
+        const nameInput = document.getElementById("nameInput");
+        const linkInput = document.getElementById("linkInput");
+        const colorInput = document.getElementById("colorInput");
+        
+        let selectedPixelId = null;
+        const pixelDataMap = {}; 
 
-<script type="module">
+        // 1. GENERAR CUADRÍCULA
+        for(let i=0; i < 2500; i++) {
+            const pixel = document.createElement("div");
+            pixel.className = "pixel";
+            pixel.id = `px-${i}`;
+            pixel.dataset.id = i;
+            grid.appendChild(pixel);
+        }
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+        // 2. LEER DATOS
+        onValue(ref(db, "pixels/"), (snapshot) => {
+            const data = snapshot.val() || {};
+            const soldIds = Object.keys(data);
+            counter.textContent = `Pixels vendidos: ${soldIds.length} / 2500`;
 
-const firebaseConfig = {
-apiKey: "AIzaSyCE_Wsp4bpohzngVpQYN16pG5xj6tWjXUg",
-authDomain: "pixelfunding-522a5.firebaseapp.com",
-databaseURL: "https://pixelfunding-522a5-default-rtdb.firebaseio.com",
-projectId: "pixelfunding-522a5",
-storageBucket: "pixelfunding-522a5.firebasestorage.app",
-messagingSenderId: "3268326785",
-appId: "1:3268326785:web:9204ea2483d518d4b3a480"
-};
+            soldIds.forEach(id => {
+                const pixelEl = document.getElementById(`px-${id}`);
+                if (pixelEl) {
+                    pixelEl.style.background = data[id].color;
+                    pixelEl.classList.add("sold");
+                    pixelEl.title = data[id].name;
+                    pixelDataMap[id] = data[id];
+                }
+            });
+        });
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+        // 3. FUNCIÓN PARA LIMPIAR SELECCIÓN
+        const clearSelection = () => {
+            const prevSelected = document.querySelector(".pixel-selected");
+            if (prevSelected) prevSelected.classList.remove("pixel-selected");
+            purchaseBox.style.display = "none";
+            overlay.style.display = "none";
+            selectedPixelId = null;
+        };
 
-const grid = document.getElementById("grid");
-const counter = document.getElementById("counter");
+        // 4. EVENTO CLICK
+        grid.addEventListener("click", (e) => {
+            const pixel = e.target;
+            const id = pixel.dataset.id;
+            if (id === undefined) return;
 
-const purchaseBox = document.getElementById("purchaseBox");
-const nameInput = document.getElementById("nameInput");
-const linkInput = document.getElementById("linkInput");
-const colorInput = document.getElementById("colorInput");
-const buyButton = document.getElementById("buyButton");
-const overlay = document.getElementById("overlay");
-const cancelButton = document.getElementById("cancelButton");
+            if (pixelDataMap[id]) {
+                window.open(pixelDataMap[id].link, "_blank");
+            } else {
+                clearSelection(); // Limpiar previa si existía
+                pixel.classList.add("pixel-selected");
+                selectedPixelId = id;
+                purchaseBox.style.display = "block";
+                overlay.style.display = "block";
+            }
+        });
 
-let selectedPixel = null;
+        // 5. BOTONES
+        document.getElementById("cancelButton").onclick = clearSelection;
+        overlay.onclick = clearSelection; // Cerrar si clickean fuera
 
-let soldPixels = 0;
-for(let i=0;i<2500;i++){
+        document.getElementById("buyButton").onclick = () => {
+            const name = nameInput.value;
+            const link = linkInput.value;
+            const color = colorInput.value;
 
-const pixel = document.createElement("div");
-pixel.className = "pixel";
-pixel.dataset.id = i;
-pixel.title = "Pixel #" + i;
-
-onValue(ref(db,"pixels/"+i),(snapshot)=>{
-
-const data = snapshot.val();
-
-if(data){
-
-pixel.style.background = data.color;
-pixel.title = data.name + " - " + data.link;
-
-soldPixels++;
-counter.textContent = "Pixels vendidos: " + soldPixels + " / 2500";
-
-pixel.onclick=()=>{
-window.open(data.link,"_blank");
-};
-
-}else{
-
-pixel.onclick=()=>{
-selectedPixel = i;
-purchaseBox.style.display = "block";
-overlay.style.display = "block";
-};
-
-}
-
-});
-
-grid.appendChild(pixel);
-
-}
-
-buyButton.onclick = ()=>{
-cancelButton.onclick = ()=>{
-
-purchaseBox.style.display = "none";
-overlay.style.display = "none";
-
-nameInput.value="";
-linkInput.value="";
-
-};
-
-const name = nameInput.value;
-const link = linkInput.value;
-const color = colorInput.value;
-
-if(name && link && color){
-
-set(ref(db,"pixels/"+selectedPixel),{
-name:name,
-link:link,
-color:color
-});
-
-purchaseBox.style.display = "none";
-
-nameInput.value="";
-linkInput.value="";
-
-}
-
-};
-
-</script>
-
+            if(name && link && selectedPixelId !== null) {
+                const finalLink = link.startsWith('http') ? link : `https://${link}`;
+                
+                set(ref(db, "pixels/" + selectedPixelId), {
+                    name, link: finalLink, color
+                }).then(() => {
+                    clearSelection();
+                    nameInput.value = ""; linkInput.value = "";
+                }).catch(err => alert("Error al guardar: " + err.message));
+            } else {
+                alert("Por favor, llena los campos básicos.");
+            }
+        };
+    </script>
 </body>
 </html>
