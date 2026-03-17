@@ -18,6 +18,7 @@
             --tech-cyan: #00f2ff;
             --text-gray: #94a3b8;
             --medical-blue: #3b82f6;
+            --sky-blue: #87CEEB;
         }
 
         body { 
@@ -27,6 +28,7 @@
             overflow-x: hidden;
         }
 
+        /* TICKER */
         #news-ticker {
             width: 100%; background: #000; border-bottom: 1px solid #1e293b;
             padding: 10px 0; overflow: hidden; white-space: nowrap; font-size: 0.85rem;
@@ -40,21 +42,16 @@
             display: flex; justify-content: space-between; align-items: center; box-sizing: border-box;
             position: relative; z-index: 100; min-height: 80px;
         }
-        
-        .brand-logo { display: flex; align-items: center; width: 200px; }
         .brand-logo img { height: 60px; width: auto; border-radius: 5px; border: 1px solid #334155; }
-
         .header-title { 
             font-weight: 800; letter-spacing: 4px; font-size: 1.5rem; 
-            position: absolute; left: 50%; transform: translateX(-50%); 
-            margin: 0; white-space: nowrap;
+            position: absolute; left: 50%; transform: translateX(-50%); margin: 0;
         }
-        
         .social-links { display: flex; gap: 15px; width: 200px; justify-content: flex-end; }
         .social-btn { text-decoration: none; color: var(--text-gray); font-size: 1.3rem; transition: 0.3s; }
         .social-btn:hover { color: var(--tech-cyan); transform: scale(1.1); }
 
-        /* CANVAS */
+        /* CANVAS AREA */
         #map-wrapper {
             margin: 30px 0 20px 0; position: relative;
             background: #000; border: 2px solid var(--tech-cyan);
@@ -62,12 +59,12 @@
         }
         canvas { image-rendering: pixelated; cursor: crosshair; display: block; }
 
-        /* DONATIONS */
+        /* SYSTEM ACTIVITY (RESTORED) */
         #recent-donations { width: 100%; max-width: 1200px; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .donation-list { display: flex; gap: 15px; overflow-x: auto; width: 100%; padding: 10px 0; scrollbar-width: thin; }
+        .donation-list { display: flex; gap: 15px; overflow-x: auto; width: 100%; padding: 10px 0; }
         .donor-card { min-width: 160px; background: var(--ui-panel); padding: 12px; border-radius: 8px; border-top: 3px solid var(--medical-blue); text-align: center; font-size: 0.8rem; }
 
-        /* INFO SECTION RESTORED */
+        /* INFO CARDS (RESTORED) */
         #info-content { max-width: 1100px; padding: 40px 20px; text-align: center; }
         .card-container { display: flex; gap: 20px; margin-top: 30px; justify-content: center; flex-wrap: wrap; }
         .card { 
@@ -75,36 +72,36 @@
             text-align: left; transition: 0.3s; border-bottom: 3px solid transparent;
         }
         .card:hover { border-bottom: 3px solid var(--tech-cyan); transform: translateY(-5px); }
-        .card h4 { color: var(--tech-cyan); margin-top: 0; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
+        .card h4 { color: var(--tech-cyan); margin-top: 0; font-size: 0.9rem; text-transform: uppercase; }
 
         /* HUD & MODAL */
         #hud { position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.9); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--tech-cyan); font-size: 0.8rem; z-index: 100; font-family: monospace; }
         
         #purchaseModal { 
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--ui-panel); padding: 30px; border-radius: 15px; width: 320px; z-index: 2000;
+            background: var(--ui-panel); padding: 30px; border-radius: 15px; width: 340px; z-index: 2000;
             border: 2px solid var(--tech-cyan); box-shadow: 0 0 100px #000;
         }
         .close-modal { position: absolute; top: 10px; right: 15px; color: var(--text-gray); font-size: 1.5rem; cursor: pointer; }
         input { width: 100%; padding: 12px; margin: 8px 0; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
-        .color-picker-wrapper { display: flex; align-items: center; justify-content: space-between; background: #0f172a; padding: 8px 12px; border-radius: 6px; margin: 10px 0; }
-        #colorInput { -webkit-appearance: none; width: 40px; height: 40px; background: transparent; border: none; cursor: pointer; }
-        #colorInput::-webkit-color-swatch { border-radius: 50%; border: 2px solid var(--tech-cyan); }
+        
+        /* LOGO UPLOAD SECTION */
+        #logoUploadSection { 
+            background: rgba(135, 206, 235, 0.1); padding: 15px; border-radius: 8px; 
+            border: 1px dashed var(--sky-blue); margin: 10px 0; display: none; 
+        }
+
         .btn-confirm { background: var(--tech-cyan); color: #0f172a; border: none; padding: 14px; width: 100%; font-weight: 800; cursor: pointer; border-radius: 6px; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
     <div id="news-ticker">
-        <div id="ticker-wrap">
-            ⚡ PIXELFUNDING: Art with a Purpose — Follow us on Instagram: @pixelfunding2026 — Follow us on X: @PixelFunding — Every pixel rebuilds a life — ⚡
-        </div>
+        <div id="ticker-wrap">⚡ PIXELFUNDING: Art with a Purpose — Follow us on Instagram: @pixelfunding2026 — Follow us on X: @PixelFunding — Every pixel rebuilds a life — ⚡</div>
     </div>
 
     <header>
-        <div class="brand-logo">
-            <img src="https://pbs.twimg.com/profile_images/2033246079827709955/MygCyBT8_400x400.jpg" alt="PixelFunding Logo">
-        </div>
+        <div class="brand-logo"><img src="https://pbs.twimg.com/profile_images/2033246079827709955/MygCyBT8_400x400.jpg" alt="Logo"></div>
         <div class="header-title">PIXELFUNDING<span style="color:var(--tech-cyan);">.</span></div>
         <div class="social-links">
             <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
@@ -115,9 +112,7 @@
         </div>
     </header>
 
-    <div id="map-wrapper">
-        <canvas id="muroCanvas"></canvas>
-    </div>
+    <div id="map-wrapper"><canvas id="muroCanvas"></canvas></div>
 
     <div id="recent-donations">
         <h4 style="margin-bottom: 10px; color: var(--tech-cyan); letter-spacing: 2px; font-size: 0.75rem; text-transform: uppercase;">System Activity</h4>
@@ -128,21 +123,18 @@
 
     <section id="info-content">
         <h2 style="color: var(--tech-cyan); font-style: italic;">"A piece of internet art with a different purpose."</h2>
-        
         <div class="card-container">
             <div class="card">
                 <h4>Instructions</h4>
-                <p style="font-size: 0.85rem; color: var(--text-gray);">Drag your mouse over the map to select your space. Your mark will be recorded permanently in the blockchain.</p>
+                <p style="font-size: 0.85rem; color: var(--text-gray);">Drag your mouse over the map to select your space. Your mark will be recorded permanently.</p>
             </div>
-
             <div class="card">
                 <h4>Monthly Founders</h4>
                 <p style="font-size: 0.85rem; color: var(--text-gray);">Special recognition for our top monthly sponsors leading the reconstruction effort.</p>
             </div>
-
             <div class="card">
                 <h4>Corporations</h4>
-                <p style="font-size: 0.85rem; color: var(--text-gray);">From <b>500 pixels</b> and up, we manually integrate your official company logo into the masterpiece.</p>
+                <p style="font-size: 0.85rem; color: var(--text-gray);">From <b>500 pixels</b> and up, upload your official logo to be integrated into the masterpiece.</p>
             </div>
         </div>
     </section>
@@ -151,17 +143,23 @@
 
     <div id="purchaseModal">
         <span class="close-modal" onclick="cancelSelection()">&times;</span>
-        <h3 style="margin-top:0">REGISTRATION</h3>
+        <h3>REGISTRATION</h3>
         <p id="area-summary" style="font-size:0.8rem; color:var(--text-gray); border-left: 2px solid var(--tech-cyan); padding-left: 10px;"></p>
-        <input id="nameInput" placeholder="Name / Institution">
-        <input id="linkInput" placeholder="URL (Website or Social Media)">
-        <div class="color-picker-wrapper">
-            <span style="font-size: 0.7rem;">PIXEL COLOR</span>
-            <input id="colorInput" type="color" value="#00f2ff">
+        
+        <div id="logoUploadSection">
+            <label style="font-size: 0.7rem; color: var(--sky-blue); font-weight: bold;">CORPORATE LOGO DETECTED</label>
+            <input type="file" id="logoInput" accept="image/*" style="font-size: 0.7rem; padding: 5px;">
         </div>
+
+        <input id="nameInput" placeholder="Name / Institution">
+        <input id="linkInput" placeholder="URL (Website / Social Media)">
+        <div style="display:flex; align-items:center; justify-content:space-between; background:#0f172a; padding:8px; border-radius:6px; margin:8px 0;">
+            <span style="font-size:0.7rem;">COLOR</span>
+            <input id="colorInput" type="color" value="#00f2ff" style="width:40px; height:40px; border:none; background:none; cursor:pointer;">
+        </div>
+        
         <div id="paypal-container" style="display:none; margin-top:15px;"></div>
         <button id="prePayBtn" class="btn-confirm">START PAYMENT</button>
-        <button onclick="cancelSelection()" style="background:none; border:none; color:var(--text-gray); width:100%; margin-top:15px; cursor:pointer; font-size: 0.7rem;">CANCEL</button>
     </div>
 
 <script type="module">
@@ -188,22 +186,23 @@
 
     let pixelsVendidos = {}, isDragging = false, modalAbierto = false;
     let startX = 0, startY = 0, endX = 0, endY = 0;
-
-    const imgFondo = new Image();
-    imgFondo.src = 'fondo.jpg';
+    const imgFondo = new Image(); imgFondo.src = 'fondo.jpg';
 
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.globalAlpha = 0.45; ctx.drawImage(imgFondo, 0, 0, canvas.width, canvas.height); ctx.globalAlpha = 1.0;
+        
         for(let key in pixelsVendidos) {
+            const d = pixelsVendidos[key];
             const [x, y] = key.split('-').map(Number);
-            ctx.fillStyle = pixelsVendidos[key].color;
-            ctx.fillRect(x * pSize, y * pSize, pSize, pSize);
+            ctx.fillStyle = d.color; ctx.fillRect(x * pSize, y * pSize, pSize, pSize);
         }
+
         if (isDragging) {
             const xMin = Math.min(startX, endX), yMin = Math.min(startY, endY);
             const w = Math.abs(endX - startX) + 1, h = Math.abs(endY - startY) + 1;
-            ctx.fillStyle = "rgba(0, 242, 255, 0.3)"; ctx.strokeStyle = "#00f2ff"; ctx.lineWidth = 1;
+            ctx.fillStyle = "rgba(135, 206, 235, 0.4)"; // SKY BLUE
+            ctx.strokeStyle = "#87CEEB"; ctx.lineWidth = 2;
             ctx.fillRect(xMin * pSize, yMin * pSize, w * pSize, h * pSize);
             ctx.strokeRect(xMin * pSize, yMin * pSize, w * pSize, h * pSize);
         }
@@ -211,27 +210,31 @@
 
     function getGridPos(e) {
         const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-        return { x: Math.floor(x / pSize), y: Math.floor(y / pSize), inside: (x >= 0 && x < rect.width && y >= 0 && y < rect.height) };
+        return { 
+            x: Math.floor((e.clientX - rect.left) / pSize), 
+            y: Math.floor((e.clientY - rect.top) / pSize) 
+        };
     }
 
     canvas.addEventListener('mousedown', (e) => {
-        if (modalAbierto) return;
-        const pos = getGridPos(e); if(!pos.inside) return;
-        isDragging = true; startX = endX = pos.x; startY = endY = pos.y; draw();
+        if(modalAbierto) return;
+        const pos = getGridPos(e);
+        startX = endX = pos.x; startY = endY = pos.y;
+        isDragging = true;
     });
 
     window.addEventListener('mousemove', (e) => {
-        if (modalAbierto) return;
-        const pos = getGridPos(e);
-        if (pos.inside) {
-            const curX = Math.max(0, Math.min(gridW - 1, pos.x));
-            const curY = Math.max(0, Math.min(gridH - 1, pos.y));
-            if (isDragging) {
-                endX = curX; endY = curY;
+        if(modalAbierto) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        if(x >= 0 && x < rect.width && y >= 0 && y < rect.height) {
+            const pos = getGridPos(e);
+            if(isDragging) {
+                endX = pos.x; endY = pos.y;
                 const total = (Math.abs(endX - startX) + 1) * (Math.abs(endY - startY) + 1);
-                hud.textContent = `COORD: ${curX}, ${curY} | SELECTED: ${total} Px`;
-            } else { hud.textContent = `COORD: ${curX}, ${curY} | READY`; }
+                hud.textContent = `COORD: ${pos.x}, ${pos.y} | SELECTED: ${total} Px`;
+            } else { hud.textContent = `COORD: ${pos.x}, ${pos.y} | READY`; }
             draw();
         }
     });
@@ -242,7 +245,13 @@
         const total = (Math.abs(endX - startX) + 1) * (Math.abs(endY - startY) + 1);
         if (total > 0) {
             modal.style.display = 'block'; modalAbierto = true;
-            document.getElementById('area-summary').textContent = `Selection: ${total} pixels ($${total}.00 USD)`;
+            if (total >= 500) {
+                document.getElementById('logoUploadSection').style.display = 'block';
+                document.getElementById('area-summary').innerHTML = `Selection: ${total} Px. <b style="color:#87CEEB">CORPORATE TIER UNLOCKED!</b>`;
+            } else {
+                document.getElementById('logoUploadSection').style.display = 'none';
+                document.getElementById('area-summary').textContent = `Selection: ${total} Pixels ($${total}.00 USD)`;
+            }
             window.currentTotal = total;
         }
     });
@@ -250,46 +259,36 @@
     onValue(ref(db, "pixels/"), (snap) => {
         pixelsVendidos = snap.val() || {}; draw();
         const donorsContainer = document.getElementById('donorsContainer'); donorsContainer.innerHTML = '';
-        const data = Object.values(pixelsVendidos).reverse();
-        const uniqueNames = [...new Set(data.map(d => d.name))].slice(0, 8);
-        uniqueNames.forEach(name => {
+        const names = [...new Set(Object.values(pixelsVendidos).reverse().map(d => d.name))].slice(0, 8);
+        names.forEach(n => {
             const card = document.createElement('div'); card.className = 'donor-card';
-            card.innerHTML = `<b>${name}</b><br><span style="font-size:0.6rem; opacity:0.7;">SPONSOR</span>`; donorsContainer.appendChild(card);
+            card.innerHTML = `<b>${n}</b><br><span style="font-size:0.6rem; opacity:0.7;">SPONSOR</span>`;
+            donorsContainer.appendChild(card);
         });
     });
 
-    window.cancelSelection = () => {
-        modal.style.display = 'none'; modalAbierto = false;
-        document.getElementById('paypal-container').innerHTML = ''; document.getElementById('paypal-container').style.display = 'none';
-        document.getElementById('prePayBtn').style.display = 'block'; draw();
-    };
+    window.cancelSelection = () => { modal.style.display = 'none'; modalAbierto = false; draw(); };
 
     document.getElementById('prePayBtn').onclick = () => {
-        const name = document.getElementById('nameInput').value;
-        const link = document.getElementById('linkInput').value;
-        if(!name) return alert("Please enter your name.");
+        if(!document.getElementById('nameInput').value) return alert("Enter your name");
         document.getElementById('prePayBtn').style.display = 'none';
         document.getElementById('paypal-container').style.display = 'block';
         paypal.Buttons({
             createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: window.currentTotal.toString() } }] }),
             onApprove: (d, a) => a.order.capture().then(() => {
-                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                confetti();
                 const xMin = Math.min(startX, endX), xMax = Math.max(startX, endX);
                 const yMin = Math.min(startY, endY), yMax = Math.max(startY, endY);
                 for(let i=xMin; i<=xMax; i++) {
                     for(let j=yMin; j<=yMax; j++) {
-                        set(ref(db, `pixels/${i}-${j}`), { 
-                            name, 
-                            link: link ? (link.startsWith('http') ? link : 'https://'+link) : '#',
-                            color: document.getElementById('colorInput').value 
-                        });
+                        set(ref(db, `pixels/${i}-${j}`), { name: document.getElementById('nameInput').value, color: document.getElementById('colorInput').value });
                     }
                 }
-                setTimeout(cancelSelection, 3000);
+                setTimeout(cancelSelection, 2000);
             })
         }).render('#paypal-container');
     };
-    imgFondo.onload = () => { draw(); };
+    imgFondo.onload = () => draw();
 </script>
 </body>
 </html>
