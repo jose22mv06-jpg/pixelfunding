@@ -70,15 +70,31 @@ const pixel=document.createElement("div");
 pixel.className="pixel";
 
 pixel.onclick=()=>{
-set(ref(db,"pixels/"+i),true);
+
+const name = prompt("Nombre del patrocinador:");
+const link = prompt("Link del sitio:");
+const color = prompt("Color del pixel (ej: red o #ff0000):");
+
+set(ref(db,"pixels/"+i),{
+name:name,
+link:link,
+color:color
+});
+
 };
 
 onValue(ref(db,"pixels/"+i),(snapshot)=>{
-if(snapshot.val()){
-pixel.style.background="black";
-}
-});
+const data = snapshot.val();
 
+if(data){
+pixel.style.background = data.color || "black";
+
+pixel.title = data.name;
+
+pixel.onclick = ()=>{
+window.open(data.link,"_blank");
+};
+}
 grid.appendChild(pixel);
 
 }
