@@ -359,7 +359,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    // Agregamos ", get" al final de la siguiente línea:
+    import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCE_Wsp4bpohzngVpQYN16pG5xj6tWjXUg",
@@ -437,12 +438,40 @@
         }
     });
 
-    window.addEventListener('mouseup', () => {
+window.addEventListener('mouseup', async () => { // Agregamos async aquí
         if (!isDragging) return;
         isDragging = false;
-        const total = (Math.abs(endX - startX) + 1) * (Math.abs(endY - startY) + 1);
+        
+        const xMin = Math.min(startX, endX), xMax = Math.max(startX, endX);
+        const yMin = Math.min(startY, endY), yMax = Math.max(startY, endY);
+        const total = (xMax - xMin + 1) * (yMax - yMin + 1);
+
         if (total > 0) {
-            modal.style.display = 'block'; modalAbierto = true;
+            hud.textContent = "VERIFYING AVAILABILITY...";
+            
+            // --- VALIDACIÓN DE PÍXELES OCUPADOS ---
+            let occupied = false;
+            for(let i = xMin; i <= xMax; i++) {
+                for(let j = yMin; j <= yMax; j++) {
+                    const snap = await get(ref(db, `pixels/${i}-${j}`));
+                    if(snap.exists()) {
+                        occupied = true;
+                        break;
+                    }
+                }
+                if(occupied) break;
+            }
+
+            if(occupied) {
+                alert("¡Lo sentimos! Parte de esta área ya ha sido comprada. Por favor selecciona píxeles vacíos.");
+                cancelSelection();
+                return; // Detiene todo, no abre el modal
+            }
+            // --- FIN DE VALIDACIÓN ---
+
+            modal.style.display = 'block'; 
+            modalAbierto = true;
+            
             if (total >= 500) {
                 document.getElementById('logoUploadSection').style.display = 'block';
                 document.getElementById('area-summary').innerHTML = `Selection: ${total} Px. <b style="color:#87CEEB">CORPORATE TIER UNLOCKED!</b>`;
@@ -454,7 +483,6 @@
         }
         draw();
     });
-
 onValue(ref(db, "pixels/"), (snapshot) => {
     const data = snapshot.val() || {};
     const count = Object.keys(data).length;
@@ -486,20 +514,44 @@ onValue(ref(db, "pixels/"), (snapshot) => {
         document.getElementById('paypal-container').style.display = 'block';
         paypal.Buttons({
             createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: window.currentTotal.toString() } }] }),
-            onApprove: (d, a) => a.order.capture().then(() => {
-                confetti();
-                const xMin = Math.min(startX, endX), xMax = Math.max(startX, endX);
-                const yMin = Math.min(startY, endY), yMax = Math.max(startY, endY);
-                for(let i=xMin; i<=xMax; i++) {
-                    for(let j=yMin; j<=yMax; j++) {
-                        set(ref(db, `pixels/${i}-${j}`), { name: document.getElementById('nameInput').value, color: document.getElementById('colorInput').value });
+onApprove: (data, actions) => {
+                return actions.order.capture().then(async (details) => {
+                    confetti();
+                    
+                    const name = document.getElementById('nameInput').value || 'Anonymous';
+                    const color = document.getElementById('colorInput').value;
+                    const xMin = Math.min(startX, endX), xMax = Math.max(startX, endX);
+                    const yMin = Math.min(startY, endY), yMax = Math.max(startY, endY);
+
+                    // Lista de tareas para Firebase
+                    const updates = [];
+                    
+                    for(let i = xMin; i <= xMax; i++) {
+                        for(let j = yMin; j <= yMax; j++) {
+                            updates.push(set(ref(db, `pixels/${i}-${j}`), { 
+                                name: name, 
+                                color: color,
+                                payer: details.payer.email_address 
+                            }));
+                        }
                     }
-                }
-                setTimeout(cancelSelection, 2000);
-            })
-        }).render('#paypal-container');
+
+                    try {
+                        // Esperamos a que Firebase termine antes de seguir
+                        await Promise.all(updates);
+                        console.log("Píxeles guardados con éxito en Firebase");
+                    } catch (e) {
+                        console.error("Error guardando píxeles:", e);
+                    }
+
+                    // Cerramos el modal y limpiamos la selección
+                    if(typeof closeModal === 'function') closeModal();
+                    setTimeout(cancelSelection, 2000);
+                });
+            }
+        }).render('#paypal-button-container'); // Asegúrate de que este ID sea el mismo de tu HTML
     };
+
     imgFondo.onload = () => draw();
-</script>
-</body>
+</script></body>
 </html>
