@@ -349,7 +349,7 @@
             <input id="colorInput" type="color" value="#00f2ff" style="width:40px; height:40px; border:none; background:none; cursor:pointer;">
         </div>
         
-        <div id="paypal-container" style="display:none; margin-top:15px;"></div>
+        <div id="paypal-button-container" style="display:none; margin-top:15px;"></div>
         
         <div class="modal-buttons" id="modalActions">
             <button class="btn-cancel" onclick="cancelSelection()">Cancel</button>
@@ -427,17 +427,28 @@
     window.addEventListener('mousemove', (e) => {
         if(modalAbierto) return;
         const rect = canvas.getBoundingClientRect();
+        
         if(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
             const pos = getGridPos(e);
+            const key = `${pos.x}-${pos.y}`; // Identificador del píxel
+
             if(isDragging) {
                 endX = pos.x; endY = pos.y;
                 const total = (Math.abs(endX - startX) + 1) * (Math.abs(endY - startY) + 1);
                 hud.textContent = `COORD: ${pos.x}, ${pos.y} | SELECTED: ${total} Px`;
-            } else { hud.textContent = `COORD: ${pos.x}, ${pos.y} | READY`; }
+            } else {
+                // VERIFICACIÓN DE DUEÑO EN TIEMPO REAL
+                if (pixelsVendidos && pixelsVendidos[key]) {
+                    hud.textContent = `OWNER: ${pixelsVendidos[key].name.toUpperCase()} | COORD: ${pos.x}, ${pos.y}`;
+                    canvas.style.cursor = 'not-allowed'; // Cambia el cursor a "prohibido"
+                } else {
+                    hud.textContent = `COORD: ${pos.x}, ${pos.y} | READY`;
+                    canvas.style.cursor = 'crosshair'; // Cursor normal de selección
+                }
+            }
             draw();
         }
     });
-
 window.addEventListener('mouseup', async () => { // Agregamos async aquí
         if (!isDragging) return;
         isDragging = false;
@@ -484,16 +495,14 @@ window.addEventListener('mouseup', async () => { // Agregamos async aquí
         draw();
     });
 onValue(ref(db, "pixels/"), (snapshot) => {
-    const data = snapshot.val() || {};
-    const count = Object.keys(data).length;
+    pixelsVendidos = snapshot.val() || {}; // Guardamos los datos para la verificación de hover
+    const count = Object.keys(pixelsVendidos).length;
     
-    // ESTA LÍNEA ES LA QUE "ESCRIBE" EL DINERO
     const display = document.getElementById('total-raised');
     if(display) {
         display.innerText = count.toFixed(2);
     }
     
-    // ESTA LÍNEA MUEVE LA BARRA
     const bar = document.getElementById('progress-bar');
     if(bar) {
         const progress = Math.min((count / 30000) * 100, 100);
@@ -501,57 +510,69 @@ onValue(ref(db, "pixels/"), (snapshot) => {
     }
 });
 
-    window.cancelSelection = () => { 
-        modal.style.display = 'none'; modalAbierto = false; 
-        document.getElementById('modalActions').style.display = 'flex';
-        document.getElementById('paypal-container').style.display = 'none';
-        draw(); 
-    };
+window.cancelSelection = () => { 
+    modal.style.display = 'none'; 
+    modalAbierto = false; 
+    document.getElementById('modalActions').style.display = 'flex';
+    // CORRECCIÓN: Usamos el ID correcto que espera PayPal
+    const ppContainer = document.getElementById('paypal-button-container');
+    if(ppContainer) ppContainer.style.display = 'none';
+    draw(); 
+};
 
-    document.getElementById('prePayBtn').onclick = () => {
-        if(!document.getElementById('nameInput').value) return alert("Enter your name");
-        document.getElementById('modalActions').style.display = 'none';
-        document.getElementById('paypal-container').style.display = 'block';
-        paypal.Buttons({
-            createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: window.currentTotal.toString() } }] }),
-onApprove: (data, actions) => {
-                return actions.order.capture().then(async (details) => {
-                    confetti();
-                    
-                    const name = document.getElementById('nameInput').value || 'Anonymous';
-                    const color = document.getElementById('colorInput').value;
-                    const xMin = Math.min(startX, endX), xMax = Math.max(startX, endX);
-                    const yMin = Math.min(startY, endY), yMax = Math.max(startY, endY);
+document.getElementById('prePayBtn').onclick = () => {
+    const nameInput = document.getElementById('nameInput');
+    if(!nameInput.value) return alert("Please enter your name");
 
-                    // Lista de tareas para Firebase
-                    const updates = [];
-                    
-                    for(let i = xMin; i <= xMax; i++) {
-                        for(let j = yMin; j <= yMax; j++) {
-                            updates.push(set(ref(db, `pixels/${i}-${j}`), { 
-                                name: name, 
-                                color: color,
-                                payer: details.payer.email_address 
-                            }));
-                        }
+    document.getElementById('modalActions').style.display = 'none';
+    
+    // CORRECCIÓN: Aseguramos que el contenedor se llame igual que en el .render()
+    const paypalContainer = document.getElementById('paypal-button-container');
+    paypalContainer.style.display = 'block';
+    paypalContainer.innerHTML = ''; // Limpiamos por si acaso
+
+    paypal.Buttons({
+        createOrder: (data, actions) => {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: { value: window.currentTotal.toString() }
+                }]
+            });
+        },
+        onApprove: (data, actions) => {
+            return actions.order.capture().then(async (details) => {
+                confetti();
+                
+                const name = document.getElementById('nameInput').value || 'Anonymous';
+                const color = document.getElementById('colorInput').value;
+                const xMin = Math.min(startX, endX), xMax = Math.max(startX, endX);
+                const yMin = Math.min(startY, endY), yMax = Math.max(startY, endY);
+
+                const updates = [];
+                for(let i = xMin; i <= xMax; i++) {
+                    for(let j = yMin; j <= yMax; j++) {
+                        updates.push(set(ref(db, `pixels/${i}-${j}`), { 
+                            name: name, 
+                            color: color,
+                            payer: details.payer.email_address 
+                        }));
                     }
+                }
 
-                    try {
-                        // Esperamos a que Firebase termine antes de seguir
-                        await Promise.all(updates);
-                        console.log("Píxeles guardados con éxito en Firebase");
-                    } catch (e) {
-                        console.error("Error guardando píxeles:", e);
-                    }
+                try {
+                    await Promise.all(updates);
+                    console.log("Píxeles guardados con éxito");
+                } catch (e) {
+                    console.error("Error en Firebase:", e);
+                }
 
-                    // Cerramos el modal y limpiamos la selección
-                    if(typeof closeModal === 'function') closeModal();
-                    setTimeout(cancelSelection, 2000);
-                });
-            }
-        }).render('#paypal-button-container'); // Asegúrate de que este ID sea el mismo de tu HTML
-    };
+                cancelSelection();
+            });
+        }
+    }).render('#paypal-button-container'); // Este ID debe existir en tu HTML
+};
 
-    imgFondo.onload = () => draw();
-</script></body>
+imgFondo.onload = () => draw();
+</script>
+</body>
 </html>
