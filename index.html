@@ -93,22 +93,153 @@
 
         /* HUD & MODAL */
         #hud { position: fixed; bottom: 20px; left: 20px; background: rgba(0,0,0,0.9); padding: 10px 15px; border-radius: 8px; border: 1px solid var(--tech-cyan); font-size: 0.8rem; z-index: 100; font-family: monospace; }
-        #purchaseModal { 
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: var(--ui-panel); padding: 35px; border-radius: 15px; width: 340px; 
-            z-index: 2500; border: 2px solid var(--tech-cyan); box-shadow: 0 0 100px #000;
-        }
-        .close-modal { position: absolute; top: 15px; right: 20px; color: #fff; font-size: 2.2rem; cursor: pointer; z-index: 3000; line-height: 1;}
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
-        #logoUploadSection { background: rgba(135, 206, 235, 0.1); padding: 15px; border-radius: 8px; border: 1px dashed var(--sky-blue); margin: 10px 0; display: none; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-confirm { background: var(--tech-cyan); color: #0f172a; border: none; padding: 14px; flex: 2; font-weight: 800; cursor: pointer; border-radius: 6px; text-transform: uppercase; }
-        .btn-cancel { background: transparent; color: #ff4d4d; border: 1px solid #ff4d4d; padding: 14px; flex: 1; font-weight: 600; cursor: pointer; border-radius: 6px; text-transform: uppercase; }
-#funding-section {
-    width: 100%; background: var(--ui-panel); padding: 30px 0;
-    text-align: center; border-bottom: 1px solid #334155;
-    box-shadow: inset 0 -10px 30px rgba(0,0,0,0.3);
+#purchaseModal { 
+/* --- ESTILOS DE LOS BOTONES DEL MODAL --- */
+.modal-buttons { 
+    display: flex; 
+    gap: 15px; 
+    margin-top: 25px; 
 }
+
+.btn-confirm { 
+    background: var(--tech-cyan); 
+    color: #0f172a; 
+    border: none; 
+    padding: 14px; 
+    flex: 2; 
+    font-weight: 800; 
+    cursor: pointer; 
+    border-radius: 6px; 
+    text-transform: uppercase;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+}
+
+.btn-confirm:hover {
+    background: #fff;
+    box-shadow: 0 0 25px var(--tech-cyan);
+    transform: translateY(-2px);
+}
+
+.btn-cancel { 
+    background: transparent; 
+    color: #ff4d4d; 
+    border: 2px solid #ff4d4d; 
+    padding: 14px; 
+    flex: 1; 
+    font-weight: 600; 
+    cursor: pointer; 
+    border-radius: 6px; 
+    text-transform: uppercase;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 77, 77, 0.1);
+    color: #ff3333;
+}
+    display: none; 
+    position: fixed; 
+    /* Scroll flexible con inicio arriba */
+    top: 5%; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    
+    /* COLORES ORIGINALES RECUPERADOS: Panel oscuro de tu proyecto */
+    background: var(--ui-panel); 
+    padding: 35px; 
+    border-radius: 15px; 
+    
+    /* Ancho flexible para PayPal */
+    width: 90%; 
+    max-width: 420px; 
+    
+    z-index: 2500; 
+    /* BORDE CIAN NEÓN ORIGINAL RECUPERADO */
+    border: 2px solid var(--tech-cyan); 
+    box-shadow: 0 0 80px rgba(0, 255, 255, 0.3); /* Sombra neón suave */
+
+    /* Scroll flexible */
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Recuperar la estética de los inputs oscuros de tu proyecto */
+#purchaseModal input { 
+    width: 100%; 
+    padding: 12px; 
+    margin: 8px 0; 
+    background: #0f172a; /* Fondo muy oscuro para el input */
+    border: 1px solid #334155; 
+    color: white; /* Texto blanco en el input */
+    border-radius: 6px; 
+    box-sizing: border-box; 
+    font-family: inherit;
+}
+
+/* Estilo para los títulos dentro del modal */
+#purchaseModal h2, #purchaseModal p {
+    color: white;
+    margin-top: 0;
+    font-family: var(--display-font);
+}
+
+#purchaseModal p {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+/* Ajuste para la "X" de cerrar (Recuperada la estética original) */
+.close-modal { 
+    position: sticky; 
+    top: -15px; 
+    right: -10px; 
+    float: right;
+    color: #fff; 
+    font-size: 2.5rem; /* Tamaño grande original */
+    cursor: pointer; 
+    z-index: 3000; 
+    line-height: 1;
+    background: var(--ui-panel); 
+    padding: 5px;
+    border-radius: 50%;
+}
+
+/* Asegurar que el contenedor de PayPal tenga su espacio */
+#paypal-button-container {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px; /* Más espacio para que respire el texto legal */
+    
+    /* FONTO CLARO PARA LEGIBILIDAD TOTAL */
+    background: #f1f5f9; /* Un gris muy claro/blanco azulado */
+    
+    border-radius: 10px;
+    min-height: 450px; /* Suficiente espacio para que no se corte al bajar */
+    box-sizing: border-box;
+    
+    /* Sombra para que se vea como un "ticket" sobre el fondo oscuro */
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.1), 0 4px 20px rgba(0,0,0,0.3);
+    
+    /* Forzamos que cualquier texto dentro sea oscuro por si acaso */
+    color: #1e293b !important;
+}
+
+/* Ajuste opcional para que los botones de PayPal se vean más nítidos */
+#paypal-button-container iframe {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Forzar que los enlaces de PayPal (que suelen ser azules oscuros) 
+   tengan un filtro de brillo si el navegador lo permite */
+#paypal-button-container iframe {
+    filter: contrast(1.2) brightness(1.5);
+}
+
 .goal-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--text-gray); text-transform: uppercase; margin-bottom: 10px; }
 .goal-amount { font-size: 3rem; font-weight: 800; color: var(--success-green); margin: 5px 0; }
 .progress-container {
@@ -119,6 +250,15 @@
     width: 0%; height: 100%; background: linear-gradient(90deg, var(--medical-blue), var(--tech-cyan));
     transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 0 15px var(--tech-cyan);
+    max-height: 90vh; /* No permite que sea más alto que la pantalla */
+    overflow-y: auto; /* Activa la barra de desplazamiento interna si es necesario */
+    display: flex;
+    flex-direction: column;
+#paypal-button-container {
+            width: 100%;
+            margin-top: 20px;
+            margin-bottom: 30px; 
+            min-height: 450px; /* Esto da espacio para que el formulario de tarjeta quepa bien */
 }
     </style>
 </head>
@@ -136,17 +276,15 @@
             <a href="https://x.com/PixelFunding" class="social-btn" target="_blank"><i class="fab fa-x-twitter"></i></a>
         </div>
     </header>
-<section id="funding-section">
+<section id="funding-section" style="display: block !important; visibility: visible !important;">
     <div class="goal-label">Medical Residency Fundraising Goal</div>
     <div class="goal-amount">
         $<span id="total-raised">0.00</span> 
-        <small style="font-size:1.2rem; color:var(--text-gray);">USD</small>
+        <small style="font-size:1.2rem; color: #94a3b8;">USD</small>
     </div>
-    
     <div class="progress-container">
-        <div id="progress-bar"></div>
+        <div id="progress-bar" style="width: 0%; height: 100%; background: #22d3ee;"></div>
     </div>
-    <p style="font-size: 0.8rem; color: var(--tech-cyan);">Every pixel counts towards the future of orthopedic surgery</p>
 </section>
 
     <div id="map-wrapper"><canvas id="muroCanvas"></canvas></div>
@@ -317,16 +455,23 @@
         draw();
     });
 
-    onValue(ref(db, "pixels/"), (snap) => {
-        pixelsVendidos = snap.val() || {}; draw();
-        const donorsContainer = document.getElementById('donorsContainer'); donorsContainer.innerHTML = '';
-        const names = [...new Set(Object.values(pixelsVendidos).reverse().map(d => d.name))].slice(0, 8);
-        names.forEach(n => {
-            const card = document.createElement('div'); card.className = 'donor-card';
-            card.innerHTML = `<b>${n}</b><br><span style="font-size:0.6rem; opacity:0.7;">SPONSOR</span>`;
-            donorsContainer.appendChild(card);
-        });
-    });
+onValue(ref(db, "pixels/"), (snapshot) => {
+    const data = snapshot.val() || {};
+    const count = Object.keys(data).length;
+    
+    // ESTA LÍNEA ES LA QUE "ESCRIBE" EL DINERO
+    const display = document.getElementById('total-raised');
+    if(display) {
+        display.innerText = count.toFixed(2);
+    }
+    
+    // ESTA LÍNEA MUEVE LA BARRA
+    const bar = document.getElementById('progress-bar');
+    if(bar) {
+        const progress = Math.min((count / 30000) * 100, 100);
+        bar.style.width = progress + "%";
+    }
+});
 
     window.cancelSelection = () => { 
         modal.style.display = 'none'; modalAbierto = false; 
