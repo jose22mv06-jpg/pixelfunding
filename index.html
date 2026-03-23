@@ -240,20 +240,30 @@
     filter: contrast(1.2) brightness(1.5);
 }
 
-.goal-label { font-size: 0.8rem; letter-spacing: 3px; color: var(--text-gray); text-transform: uppercase; margin-bottom: 10px; }
+.goal-label {
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    color: var(--text-gray);
+    text-transform: uppercase;
+    margin-top: 20px; /* 👈 agrega esto */
+    margin-bottom: 10px;
+}
 .goal-amount { font-size: 3rem; font-weight: 800; color: var(--success-green); margin: 5px 0; }
 .progress-container {
-    width: 80%; max-width: 800px; height: 12px; background: #0f172a; 
-    margin: 20px auto; border-radius: 20px; overflow: hidden; border: 1px solid #334155;
+    width: 800px;
+    height: 20px;
+    background: #1e293b;
+    border-radius: 10px;
+    margin: 10px auto;
+    overflow: hidden;
 }
 #progress-bar {
-    width: 0%; height: 100%; background: linear-gradient(90deg, var(--medical-blue), var(--tech-cyan));
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--medical-blue), var(--tech-cyan));
     transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 0 15px var(--tech-cyan);
-    max-height: 90vh; /* No permite que sea más alto que la pantalla */
-    overflow-y: auto; /* Activa la barra de desplazamiento interna si es necesario */
-    display: flex;
-    flex-direction: column;
+}
 #paypal-button-container {
             width: 100%;
             margin-top: 20px;
@@ -273,17 +283,43 @@
         <div class="header-title">PIXELFUNDING<span style="color:var(--tech-cyan);">.</span></div>
         <div class="social-links">
             <a href="https://www.instagram.com/pixelfunding2026/" class="social-btn" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://x.com/PixelFunding" class="social-btn" target="_blank"><i class="fab fa-x-twitter"></i></a>
+            <a href="https://x.com/dr_pixel28" class="social-btn" target="_blank"><i class="fab fa-x-twitter"></i></a>
         </div>
     </header>
-<section id="funding-section" style="display: block !important; visibility: visible !important;">
+<section id="funding-section">
     <div class="goal-label">Medical Residency Fundraising Goal</div>
+    
     <div class="goal-amount">
         $<span id="total-raised">0.00</span> 
         <small style="font-size:1.2rem; color: #94a3b8;">USD</small>
     </div>
+
     <div class="progress-container">
         <div id="progress-bar" style="width: 0%; height: 100%; background: #22d3ee;"></div>
+    </div>
+
+    <!-- 👇 AQUÍ ESTÁN TUS RECUADROS (MISMO ESTILO, SOLO MOVIDOS) -->
+    <div class="card-container">
+        <div class="card">
+            <h4>Instructions</h4>
+            <p style="font-size: 0.85rem; color: var(--text-gray);">
+                Drag your mouse over the map to select your space. Your mark will be recorded permanently.
+            </p>
+        </div>
+
+        <div class="card">
+            <h4>Monthly Founders</h4>
+            <p style="font-size: 0.85rem; color: var(--text-gray);">
+                Special recognition for our top monthly sponsors leading the reconstruction effort.
+            </p>
+        </div>
+
+        <div class="card">
+            <h4>Corporations</h4>
+            <p style="font-size: 0.85rem; color: var(--text-gray);">
+                From <b>500 pixels</b> and up, upload your official logo to be integrated into the masterpiece.
+            </p>
+        </div>
     </div>
 </section>
 
@@ -296,39 +332,18 @@
         </div>
     </div>
 
-    <div class="card-container">
-        <div class="card">
-            <h4>Instructions</h4>
-            <p style="font-size: 0.85rem; color: var(--text-gray);">Drag your mouse over the map to select your space. Your mark will be recorded permanently.</p>
-        </div>
-        <div class="card">
-            <h4>Monthly Founders</h4>
-            <p style="font-size: 0.85rem; color: var(--text-gray);">Special recognition for our top monthly sponsors leading the reconstruction effort.</p>
-        </div>
-        <div class="card">
-            <h4>Corporations</h4>
-            <p style="font-size: 0.85rem; color: var(--text-gray);">From <b>500 pixels</b> and up, upload your official logo to be integrated into the masterpiece.</p>
-        </div>
+<section id="about-us">
+    <img src="hositng8.png" alt="Medical Mission" class="about-image">
+
+    <div class="about-text">
+        <h2>About PixelFunding</h2>
+        <p>
+            Every pixel on this canvas represents a contribution toward reconstruction and hope.
+            We believe in the power of collective art to solve real-world problems.
+        </p>
+
     </div>
-
-    <section id="about-us">
-        <img src="hositng8.png" alt="Medical Mission" class="about-image">
-        <div class="about-text">
-            <h2>About PixelFunding</h2>
-            <p>Every pixel on this canvas represents a contribution toward reconstruction and hope. We believe in the power of collective art to solve real-world problems.</p>
-            
-            <div class="personal-note">
-                "As an orthopedic surgeon in training, this project was born with the intent to cover the costs of my medical residency. Every pixel is a step closer to the goal of continuing to rebuild lives."
-            </div>
-
-            <ul class="reason-list">
-                <li><i class="fas fa-stethoscope"></i> <b>Direct Support:</b> Directly supporting medical education and future healthcare.</li>
-                <li><i class="fas fa-shield-alt"></i> <b>Permanent Legacy:</b> Your mark stays on the canvas forever.</li>
-                <li><i class="fas fa-hand-holding-heart"></i> <b>Ethical Funding:</b> Transparent process through community collaboration.</li>
-            </ul>
-        </div>
-    </section>
-
+</section>
     <div id="hud">COORD: 0, 0 | STANDBY</div>
 
     <div id="purchaseModal">
@@ -416,6 +431,15 @@
         };
     }
 
+    function isValidURL(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     canvas.addEventListener('mousedown', (e) => {
         if(modalAbierto) return;
         const pos = getGridPos(e);
@@ -424,7 +448,7 @@
         draw();
     });
 
-    window.addEventListener('mousemove', (e) => {
+    canvas.addEventListener('mousemove', (e) => {
         if(modalAbierto) return;
         const rect = canvas.getBoundingClientRect();
         
@@ -439,7 +463,17 @@
             } else {
                 // VERIFICACIÓN DE DUEÑO EN TIEMPO REAL
                 if (pixelsVendidos && pixelsVendidos[key]) {
-                    hud.textContent = `OWNER: ${pixelsVendidos[key].name.toUpperCase()} | COORD: ${pos.x}, ${pos.y}`;
+                    const owner = pixelsVendidos[key];
+
+                    if (owner.link) {
+                        hud.innerHTML = `
+                            OWNER: <b>${owner.name}</b> | 
+                            <span style="color:#00f2ff; cursor:pointer;" 
+                            onclick="window.open('${owner.link}', '_blank')">VISIT</span>
+    `                    ;
+                    } else {
+                        hud.textContent = `OWNER: ${owner.name} | COORD: ${pos.x}, ${pos.y}`;
+                    }
                     canvas.style.cursor = 'not-allowed'; // Cambia el cursor a "prohibido"
                 } else {
                     hud.textContent = `COORD: ${pos.x}, ${pos.y} | READY`;
@@ -464,8 +498,8 @@ window.addEventListener('mouseup', async () => { // Agregamos async aquí
             let occupied = false;
             for(let i = xMin; i <= xMax; i++) {
                 for(let j = yMin; j <= yMax; j++) {
-                    const snap = await get(ref(db, `pixels/${i}-${j}`));
-                    if(snap.exists()) {
+                    const key = `${i}-${j}`;
+                    if(pixelsVendidos[key]) {
                         occupied = true;
                         break;
                     }
@@ -541,6 +575,16 @@ document.getElementById('prePayBtn').onclick = () => {
         },
         onApprove: (data, actions) => {
             return actions.order.capture().then(async (details) => {
+            let link = document.getElementById('linkInput').value.trim();
+
+            if (link && !isValidURL(link)) {
+                alert("Please enter a valid URL (include https://)");
+                return;
+            }
+
+            if (link && !link.startsWith("http")) {
+                link = "https://" + link;
+            }
                 confetti();
                 
                 const name = document.getElementById('nameInput').value || 'Anonymous';
@@ -554,6 +598,7 @@ document.getElementById('prePayBtn').onclick = () => {
                         updates.push(set(ref(db, `pixels/${i}-${j}`), { 
                             name: name, 
                             color: color,
+                            link: link,
                             payer: details.payer.email_address 
                         }));
                     }
